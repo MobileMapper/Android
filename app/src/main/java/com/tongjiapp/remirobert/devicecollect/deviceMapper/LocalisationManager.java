@@ -10,6 +10,7 @@ import com.baidu.location.LocationClientOption;
 
 import bolts.Task;
 import bolts.TaskCompletionSource;
+import io.realm.Realm;
 
 /**
  * Created by remirobert on 01/07/16.
@@ -20,7 +21,16 @@ public class LocalisationManager {
     private LocationClient mLocationClient = null;
     private Context mContext;
 
-    public Task<BDLocation> task() {
+    private void saveRecord(BDLocation location, String idRecord) {
+        Realm realm = Realm.getDefaultInstance();
+        Record record = realm.where(Record.class).equalTo("id", idRecord).findFirst();
+        realm.beginTransaction();
+        record.setLatitude(location.getLatitude());
+        record.setLongitude(location.getLongitude());
+        realm.commitTransaction();
+    }
+
+    public Task<BDLocation>task(final String idRecord) {
         final TaskCompletionSource<BDLocation> task = new TaskCompletionSource<>();
 
         Log.v(TAG, "task running");
@@ -30,6 +40,7 @@ public class LocalisationManager {
         mLocationClient.registerLocationListener(new BDLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
+                saveRecord(bdLocation, idRecord);
                 task.setResult(bdLocation);
             }
         });

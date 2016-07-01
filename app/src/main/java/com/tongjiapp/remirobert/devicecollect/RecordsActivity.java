@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.baidu.location.LocationClient;
 import com.tongjiapp.remirobert.devicecollect.deviceMapper.DeviceMapper;
 import com.tongjiapp.remirobert.devicecollect.deviceMapper.DeviceMapperListener;
-import com.tongjiapp.remirobert.devicecollect.deviceMapper.DeviceRecord;
+import com.tongjiapp.remirobert.devicecollect.deviceMapper.Record;
 import com.tongjiapp.remirobert.devicecollect.deviceMapper.DeviceSignalManager;
 
 import bolts.Continuation;
@@ -34,7 +34,7 @@ public class RecordsActivity extends AppCompatActivity {
 
         DeviceMapper.getRecord(getApplicationContext(), new DeviceMapperListener() {
             @Override
-            public void onReceivedRecordDevice(DeviceRecord record) {
+            public void onReceivedRecordDevice(Record record) {
                 Log.v("Location", "received location : " + record.getLatitude() + " " + record.getLongitude());
             }
         });
