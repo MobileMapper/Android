@@ -13,6 +13,8 @@ public class Record extends RealmObject {
 
     private double latitude;
     private double longitude;
+    private double batteryCapacity;
+    private double batteryPercent;
 
     public Record(String id) {
         this.id = id;
@@ -31,5 +33,17 @@ public class Record extends RealmObject {
     }
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+    public double getBatteryCapacity() {
+        return batteryCapacity;
+    }
+    public void setBatteryCapacity(double batteryCapacity) {
+        this.batteryCapacity = batteryCapacity;
+    }
+    public double getBatteryPercent() {
+        return batteryPercent;
+    }
+    public void setBatteryPercent(double batteryPercent) {
+        this.batteryPercent = batteryPercent;
     }
 }

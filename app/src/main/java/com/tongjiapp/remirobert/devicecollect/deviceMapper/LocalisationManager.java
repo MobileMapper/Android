@@ -30,8 +30,8 @@ public class LocalisationManager {
         realm.commitTransaction();
     }
 
-    public Task<BDLocation>task(final String idRecord) {
-        final TaskCompletionSource<BDLocation> task = new TaskCompletionSource<>();
+    public Task<Void>task(final String idRecord) {
+        final TaskCompletionSource<Void> task = new TaskCompletionSource<>();
 
         Log.v(TAG, "task running");
         LocationClientOption option = new LocationClientOption();
@@ -41,7 +41,7 @@ public class LocalisationManager {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
                 saveRecord(bdLocation, idRecord);
-                task.setResult(bdLocation);
+                task.setResult(null);
             }
         });
         mLocationClient.start();

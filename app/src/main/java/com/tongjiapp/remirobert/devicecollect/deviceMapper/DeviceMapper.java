@@ -3,8 +3,6 @@ package com.tongjiapp.remirobert.devicecollect.deviceMapper;
 import android.content.Context;
 import android.util.Log;
 
-import com.baidu.location.BDLocation;
-
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -38,6 +36,8 @@ public class DeviceMapper {
         Realm.setDefaultConfiguration(realmConfiguration);
 
         LocalisationManager localisationManager = new LocalisationManager(context);
+        final DeviceBatteryManager deviceBatteryManager = new DeviceBatteryManager(context);
+
         final String idRecord = UUID.randomUUID().toString();
         final Record record = new Record(idRecord);
 
@@ -50,9 +50,22 @@ public class DeviceMapper {
             }
         });
 
-        localisationManager.task(idRecord).onSuccess(new Continuation<BDLocation, Object>() {
+        localisationManager.task(idRecord).continueWithTask(new Continuation<Void, Task<? extends Object>>() {
             @Override
-            public Object then(Task<BDLocation> task) throws Exception {
+            public Task<? extends Object> then(Task<Void> task) throws Exception {
+                return deviceBatteryManager.taskBatteryCapacity();
+            }
+        }).onSuccess(new Continuation<TContinuationResult, Object>() {
+            @Override
+            public Object then(Task<TContinuationResult> task) throws Exception {
+
+                return null;
+            }
+        });
+
+        localisationManager.task(idRecord).onSuccess(new Continuation<Void, Object>() {
+            @Override
+            public Object then(Task<Void> task) throws Exception {
 
                 Record recordedDevice = realm.where(Record.class).equalTo("id", idRecord).findFirst();
                 Log.v("lcoation result", "recorded device : " + recordedDevice.getLatitude() + " " + recordedDevice.getLongitude());

@@ -8,6 +8,7 @@ import android.os.BatteryManager;
 
 import bolts.Task;
 import bolts.TaskCompletionSource;
+import io.realm.Realm;
 
 /**
  * Created by remirobert on 01/07/16.
@@ -16,9 +17,10 @@ public class DeviceBatteryManager {
 
     private Context mContext;
     private BroadcastReceiver mBroadcastReceiver;
+    private Realm mRealm = Realm.getDefaultInstance();
 
-    public Task<Double> taskBatteryCapacity() {
-        TaskCompletionSource<Double> taskCompletionSource = new TaskCompletionSource<>();
+    public Task<Void> taskBatteryCapacity(String idRecord) {
+        TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
         Object mPowerProfile_ = null;
 
         final String POWER_PROFILE_CLASS = "com.android.internal.os.PowerProfile";
@@ -35,15 +37,21 @@ public class DeviceBatteryManager {
                     .forName(POWER_PROFILE_CLASS)
                     .getMethod("getAveragePower", java.lang.String.class)
                     .invoke(mPowerProfile_, "battery.capacity");
-            taskCompletionSource.setResult(batteryCapacity);
+
+            Record record = mRealm.where(Record.class).equalTo("id", idRecord).findFirst();
+            mRealm.beginTransaction();
+            record.setBatteryCapacity(batteryCapacity);
+            mRealm.commitTransaction();
+
+            taskCompletionSource.setResult(null);
         } catch (Exception e) {
             taskCompletionSource.setError(e);
         }
         return taskCompletionSource.getTask();
     }
 
-    public Task<Integer> taskPercentBattery() {
-        final TaskCompletionSource<Integer> taskCompletionSource = new TaskCompletionSource<>();
+    public Task<Void> taskPercentBattery(final String idRecord) {
+        final TaskCompletionSource<Void> taskCompletionSource = new TaskCompletionSource<>();
 
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -55,7 +63,13 @@ public class DeviceBatteryManager {
                     level = (rawlevel * 100) / scale;
                 }
                 mContext.unregisterReceiver(mBroadcastReceiver);
-                taskCompletionSource.setResult(level);
+
+                Record record = mRealm.where(Record.class).equalTo("id", idRecord).findFirst();
+                mRealm.beginTransaction();
+                record.setBatteryPercent(level);
+                mRealm.commitTransaction();
+
+                taskCompletionSource.setResult(null);
             }
         };
         mContext.registerReceiver(mBroadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
